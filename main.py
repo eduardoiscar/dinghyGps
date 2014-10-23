@@ -14,46 +14,16 @@ from PyQt4.QtCore import *
 from PyQt4.QtWebKit import *
 import os
 
+
 import pyqtgraph as pg
+
+import web
 
 import qrc_resources
 
 import numpy as np
 
 
-html = '''<!DOCTYPE html>
-<html>
-  <head>
-    <title>Simple Map</title>
-    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
-    <meta charset="utf-8">
-    <style>
-      html, body, #map-canvas {
-        height: 100%;
-        margin: 0px;
-        padding: 0px
-      }
-    </style>
-    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
-    <script>
-var map;
-function initialize() {
-  var mapOptions = {
-    zoom: 8,
-    center: new google.maps.LatLng(-34.397, 150.644)
-  };
-  map = new google.maps.Map(document.getElementById('map-canvas'),
-      mapOptions);
-}
-
-google.maps.event.addDomListener(window, 'load', initialize);
-
-    </script>
-  </head>
-  <body>
-    <div id="map-canvas"></div>
-  </body>
-</html>'''
 
 class Data():
     def __init__(self):
@@ -233,12 +203,13 @@ class MainWindow(QMainWindow):
         self.browser = QTextBrowser()
         self.browser.setMinimumSize(800, 400)
         self.webbrowser = QWebView()
-        self.webbrowser.setHtml(html)
+        self.webbrowser.setHtml(web.html)
         #self.webbrowser.setUrl(QUrl("https://google-developers.appspot.com/maps/documentation/javascript/examples/map-simple"))
         self.uppertab = QTabWidget()
         self.uppertab.addTab(self.browser,"Serial Terminal")
         self.uppertab.addTab(self.webbrowser,"Maps")
 
+        #Added comment
 
         #Graps for plotting
         self.yawgraph = pg.GraphicsWindow()
