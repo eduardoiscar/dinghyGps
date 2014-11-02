@@ -1,6 +1,9 @@
 __author__ = 'eduardo'
 
 html = '''<!DOCTYPE html>
+
+
+
 <html>
   <head>
     <title>Simple Map</title>
@@ -19,7 +22,7 @@ var map;
 function initialize() {
   var mapOptions = {
     zoom: 8,
-    center: new google.maps.LatLng(-34.397, 150.644)
+    center: new google.maps.LatLng(42.27, -83.72)
   };
   map = new google.maps.Map(document.getElementById('map-canvas'),
       mapOptions);

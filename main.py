@@ -17,7 +17,7 @@ import os
 
 import pyqtgraph as pg
 
-import web
+import web2 as web
 
 import qrc_resources
 
@@ -81,9 +81,9 @@ def serial_ports():
             pass
     return result
 
-class dockWidget(QWidget):
+class rightdockWidget(QWidget):
     def __init__(self, parent = None):
-        super(dockWidget,self).__init__(parent)
+        super(rightdockWidget,self).__init__(parent)
 
         #Descriptive Labels
         self.latitudeLabel = QLabel("Latitude")
@@ -126,10 +126,42 @@ class dockWidget(QWidget):
 
         self.setLayout(layout)
 
-class serialDockWidget(QWidget):
-    def __init__(self,parent = None):
-        super(serialDockWidget,self).__init__(parent)
-        a = 1
+class leftdockWidget(QWidget):
+
+    signal_pushed = pyqtSignal()
+
+
+    def __init__(self, parent = None):
+        super(leftdockWidget,self).__init__(parent)
+
+
+
+        #Descriptive Labels
+
+        self.pbutton = QPushButton("Press:")
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.pbutton)
+
+        layout.addStretch()
+
+        self.setLayout(layout)
+
+       # self.connect(self.pbutton,SIGNAL("clicked()"),self.onpress)
+
+
+    #def onpress(self):
+     #   leftdockWidget.signal_pushed.emit()
+
+    #def callback(self):
+    #    print("Called")
+
+
+
+
+
+
+
 
 
 class configSerialDialog(QDialog):
@@ -294,21 +326,28 @@ class MainWindow(QMainWindow):
         logDockWidget.setObjectName("StatusWidget")
         logDockWidget.setAllowedAreas(Qt.RightDockWidgetArea)
         logDockWidget.setMinimumWidth(120)
-        self.dock = dockWidget()
+        self.dock = rightdockWidget()
         logDockWidget.setWidget(self.dock)
         self.addDockWidget(Qt.RightDockWidgetArea, logDockWidget)
 
-        #serialDockWidget = QDockWidget("Control",self)
-        #serialDockWidget.setObjectName("Serial Sender Widget")
-        #serialDockWidget.setAllowedAreas(Qt.LeftDockWidgetArea)
-        #serialDockWidget.setMinimumWidth(120)
-        #self.dock2 = serialDockWidget()
-        #serialDockWidget.setMinimumWidth(self.dock2)
-        #self.addDockWidget(Qt.LeftDockWidgetArea,serialDockWidget)
+        serialDockWidget = QDockWidget("Control",self)
+        serialDockWidget.setObjectName("Serial Sender Widget")
+        serialDockWidget.setAllowedAreas(Qt.LeftDockWidgetArea)
+        serialDockWidget.setMinimumWidth(120)
+        self.dock2 = leftdockWidget()
+        serialDockWidget.setWidget(self.dock2)
+        self.addDockWidget(Qt.LeftDockWidgetArea,serialDockWidget)
 
+
+        self.connect(self.dock2.pbutton,SIGNAL("clicked()"),self.showmarker)
         self.connect(self.serialtimer,SIGNAL("timeout()"), self.readSerial)
 
+    def showmarker(self):
+        frame = self.webbrowser.page().currentFrame()
+        frame.evaluateJavaScript(QString("addMarker(-33.89, 151.275)"))
 
+    def showtest(self):
+        print("Test")
 
 
     def openFile(self):
