@@ -3,7 +3,6 @@
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
-from future_builtins import *
 
 
 import serial
@@ -17,9 +16,7 @@ import os
 
 import pyqtgraph as pg
 
-import web2 as web
-
-import qrc_resources
+import web3 as web
 
 import numpy as np
 
@@ -46,6 +43,11 @@ class Data():
         self.pitch = np.empty(self.maxnpoints,dtype=float)
         self.roll = np.empty(self.maxnpoints,dtype=float)
         self.fixqual = np.empty(self.maxnpoints,dtype=float)
+
+        x = self.statistics()
+
+    def statistics(self):
+        self.date.mean = 4
 
 
 
@@ -134,8 +136,6 @@ class leftdockWidget(QWidget):
     def __init__(self, parent = None):
         super(leftdockWidget,self).__init__(parent)
 
-
-
         #Descriptive Labels
 
         self.pbutton = QPushButton("Press:")
@@ -147,14 +147,6 @@ class leftdockWidget(QWidget):
 
         self.setLayout(layout)
 
-       # self.connect(self.pbutton,SIGNAL("clicked()"),self.onpress)
-
-
-    #def onpress(self):
-     #   leftdockWidget.signal_pushed.emit()
-
-    #def callback(self):
-    #    print("Called")
 
 
 
@@ -253,12 +245,23 @@ class MainWindow(QMainWindow):
         self.pitchgraph = pg.GraphicsWindow()
         self.pitchgraph.setMinimumHeight(200)
         self.p1otpitch = self.pitchgraph.addPlot(title="Pitch")
+        self.speedgraph = pg.GraphicsWindow()
+        self.speedgraph.setMinimumHeight(200)
+        self.p1otspeed = self.speedgraph.addPlot(title="Speed")
+        self.coursegraph = pg.GraphicsWindow()
+        self.coursegraph.setMinimumHeight(200)
+        self.p1otcourse = self.coursegraph.addPlot(title="Course")
+
+
 
         #Tabs for graphs
         self.tabedgraph = QTabWidget()
         self.tabedgraph.addTab(self.yawgraph,"Yaw")
         self.tabedgraph.addTab(self.pitchgraph,"Pitch")
         self.tabedgraph.addTab(self.rollgraph,"Roll")
+        self.tabedgraph.addTab(self.speedgraph,"Speed")
+        self.tabedgraph.addTab(self.coursegraph,"Course")
+
 
 
         #Window Splitter
@@ -339,20 +342,30 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.LeftDockWidgetArea,serialDockWidget)
 
 
-        self.connect(self.dock2.pbutton,SIGNAL("clicked()"),self.showmarker)
+        self.connect(self.dock2.pbutton,SIGNAL("clicked()"),self.update_geo)
         self.connect(self.serialtimer,SIGNAL("timeout()"), self.readSerial)
 
     def showmarker(self):
         frame = self.webbrowser.page().currentFrame()
-        frame.evaluateJavaScript(QString("addMarker(-33.89, 151.275)"))
+        frame.evaluateJavaScript(QString("addMarker("+unicode(-33.89)+","+unicode(151.275)+")"))
 
-    def showtest(self):
-        print("Test")
+    def update_geo(self):
+        # Capture coordinates of the last marker on the map.
+        mark = self.webbrowser.page().mainFrame().evaluateJavaScript('document.getElementById("locationData").value').toString()
+        # Convert string to list of floats, stripping parentheses.
+        marker = str(mark).strip('()').split(', ')
+        #decimals = [float(c) for c in marker]
+        print(mark)
+
 
 
     def openFile(self):
         self.filename = QFileDialog.getOpenFileName(self, 'Open File', os.path.expanduser('~'))
-        f = open(self.filename)
+        try:
+            f = open(self.filename)
+        except:
+            return
+
         for line in f:
             if self.parseString(line):
                 self.browser.insertPlainText(line)
@@ -386,6 +399,9 @@ class MainWindow(QMainWindow):
         self.p1otyaw.plot(data.millis[0:data.npoints-1], data.yaw[0:data.npoints-1], clear=True)
         self.p1otroll.plot(data.millis[0:data.npoints-1], data.roll[0:data.npoints-1], clear=True)
         self.p1otpitch.plot(data.millis[0:data.npoints-1], data.pitch[0:data.npoints-1], clear=True)
+        self.p1otcourse.plot(data.millis[0:data.npoints-1], data.course[0:data.npoints-1], clear=True)
+        self.p1otspeed.plot(data.millis[0:data.npoints-1], data.speed[0:data.npoints-1], clear=True)
+
 
 
 
